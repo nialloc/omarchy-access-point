@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# wotconn-connect <ssid> <bssid>
+#
+# Connects to one particular access point of a Wi-Fi network. NetworkManager
+# only associates with a given access point when the profile names its BSSID,
+# so the saved profile is pinned to it for the activation and then put back
+# as it was. The running connection keeps the pin, so this machine stays on
+# that access point until it next reconnects (resume, out of range), when it
+# picks freely again.
+#
+# The pin is --temporary (memory only) so an interrupted run can't leave it
+# on disk; the put-back is a normal save so the profile returns to its file.
+set -u
+
+ssid=${1:?usage: wotconn-connect <ssid> <bssid>}
+bssid=${2:?usage: wotconn-connect <ssid> <bssid>}
+
+fail() { echo "$*" >&2; exit 1; }
+# nmcli -g escapes ':' and '\' inside values.
+unescape() { sed -e 's/\\:/:/g' -e 's/\\\\/\\/g'; }
+
+ifname=$(nmcli -t -f DEVICE,TYPE device | awk -F: '$2 == "wifi" { print $1; exit }')
+[ -n "$ifname" ] || fail "No Wi-Fi device"
+
+# The profile already active on the device if it's for this SSID, otherwise
+# any saved profile for it.
+uuid=""
+for u in $(nmcli -t -f UUID,DEVICE connection show --active | awk -F: -v d="$ifname" '$2 == d { print $1 }') \
+         $(nmcli -t -f UUID,TYPE connection show | awk -F: '$2 == "802-11-wireless" { print $1 }'); do
+  if [ "$(nmcli -g 802-11-wireless.ssid connection show "$u" 2>/dev/null | unescape)" = "$ssid" ]; then
+    uuid=$u
+    break
+  fi
+done
+[ -n "$uuid" ] || fail "No saved Wi-Fi profile for $ssid"
+
+previous=$(nmcli -g 802-11-wireless.bssid connection show "$uuid" | unescape)
+unpin_hint="nmcli connection modify $uuid 802-11-wireless.bssid '$previous'"
+
+restore() {
+  nmcli connection modify "$uuid" 802-11-wireless.bssid "$previous" >/dev/null 2>&1
+}
+
+nmcli connection modify --temporary "$uuid" 802-11-wireless.bssid "$bssid" >/dev/null 2>&1 \
+  || fail "Couldn't point $ssid at $bssid"
+# From here on the profile is pinned; put it back even if interrupted.
+trap 'restore; exit 130' INT TERM HUP
+
+nmcli --wait 30 connection up "$uuid" ifname "$ifname" ap "$bssid" >/dev/null 2>&1
+rc=$?
+restore
+restored=$?
+trap - INT TERM HUP
+
+if [ $rc -ne 0 ]; then
+  [ $restored -eq 0 ] || fail "Couldn't connect to $bssid, and $ssid is still pinned to it. Unpin with: $unpin_hint"
+  # Don't leave the machine offline: let NetworkManager pick an access point.
+  nmcli --wait 30 connection up "$uuid" ifname "$ifname" >/dev/null 2>&1
+  fail "Couldn't connect to $bssid"
+fi
+[ $restored -eq 0 ] || fail "Connected, but $ssid is still pinned to $bssid. Unpin with: $unpin_hint"

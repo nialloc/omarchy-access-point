@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "niall.wotconn",
+  "name": "Access Point",
+  "version": "1.0.0",
+  "author": "Niall Ó Cléirigh",
+  "license": "MIT",
+  "description": "Shows which access point of a multi-access-point Wi-Fi network you're connected to, and lets you name and switch between them.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Access Point",
+    "description": "The name of the access point you're on, with a list of every access point broadcasting the network. Hidden on networks with a single access point.",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "ssid": "",
+      "showLabel": true,
+      "refreshIntervalSec": 5
+    },
+    "schema": [
+      {
+        "key": "ssid",
+        "type": "string",
+        "label": "Pin to network (SSID)",
+        "description": "Leave empty to follow the connected network. The widget then only appears on networks with more than one access point.",
+        "defaultValue": ""
+      },
+      {
+        "key": "showLabel",
+        "type": "boolean",
+        "label": "Show the access point's name in the bar",
+        "defaultValue": true
+      },
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Check interval (seconds)",
+        "min": 2,
+        "max": 300,
+        "step": 1,
+        "defaultValue": 5
+      }
+    ]
+  }
+}
