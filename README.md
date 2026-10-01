@@ -138,15 +138,9 @@ omarchy-shell niall.wotconn toggle
 
 ## Development
 
-Clone straight into the plugins folder and enable it:
-
-```sh
-git clone https://github.com/nialloc/omarchy-access-point ~/.config/omarchy/plugins/niall.wotconn
-omarchy-shell shell rescanPlugins
-omarchy plugin enable niall.wotconn
-```
-
-Saved changes there reload automatically. If you keep the checkout elsewhere
+Install it as above: `omarchy plugin add` leaves a git checkout in
+`~/.config/omarchy/plugins/niall.wotconn`, so you can work on it in place.
+Saved changes there reload automatically. If you keep a checkout elsewhere
 and symlink it into `~/.config/omarchy/plugins/`, the shell's file watcher
 doesn't follow the link, so run `omarchy restart shell` after editing.
 
