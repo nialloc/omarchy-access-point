@@ -13,6 +13,10 @@ broadcast the same SSID, and my phone or laptop connects to whichever has the
 best signal (mostly). I wanted to see which access point I'm connected to,
 and to switch to another quickly and easily.
 
+## Vibe Coding
+
+This (of course) is completely vibe coded. No hand chiselling here. Built with Claude Opus 5.5
+
 ## What it does
 
 It follows whichever network you're connected to, but only appears on
