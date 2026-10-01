@@ -456,6 +456,7 @@ Panel {
             onRescanRequested: root.rescan()
             iconComponent: Component {
               Text {
+                textFormat: Text.PlainText
                 text: Model.AP_GLYPH
                 color: hero.glyphColor
                 font.family: hero.fontFamily
@@ -486,6 +487,7 @@ Panel {
           }
 
           Text {
+            textFormat: Text.PlainText
             visible: root.loaded && root.rows.length === 0
             width: parent.width
             text: "No " + root.ssid + " access points in range."
@@ -515,6 +517,7 @@ Panel {
           }
 
           Text {
+            textFormat: Text.PlainText
             visible: root.rows.length > 0
             width: parent.width
             text: "Click a row to name it · c connects · x forgets"

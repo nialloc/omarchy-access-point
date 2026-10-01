@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "niall.wotconn",
   "name": "Access Point",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Niall Ó Cléirigh",
   "license": "MIT",
   "description": "Shows which access point of a multi-access-point Wi-Fi network you're connected to, and lets you name and switch between them.",
